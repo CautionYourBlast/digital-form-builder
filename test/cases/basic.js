@@ -17,7 +17,7 @@ lab.experiment('Basic', () => {
   lab.test('GET /', async () => {
     const options = {
       method: 'GET',
-      url: '/'
+      url: '/basic'
     }
 
     const response = await server.inject(options)
@@ -25,27 +25,23 @@ lab.experiment('Basic', () => {
     expect(response.headers['content-type']).to.include('text/html')
 
     const $ = cheerio.load(response.payload)
-    // const helper = new HtmlHelper($)
 
-    // const page = data.pages[0]
-    // helper.assertTitle(page)
-
-    expect($('title').text()).to.equal('Intro page')
-    expect($('h1.govuk-heading-xl').text().trim()).to.equal('Intro page')
-    expect($('p.govuk-body').length).to.equal(1)
-    expect($('p.govuk-body').text().trim()).to.equal('Test content')
+    expect($('h1.govuk-fieldset__heading').text().trim()).to.equal('Licence details Which fishing licence do you want to get?')
+    expect($('.govuk-radios__item').length).to.equal(3)
   })
 
   lab.test('POST /', async () => {
     const options = {
       method: 'POST',
-      url: '/',
-      payload: {}
+      url: '/basic',
+      payload: {
+        licenceLength: 1
+      }
     }
 
     const response = await server.inject(options)
     expect(response.statusCode).to.equal(302)
     expect(response.headers).to.include('location')
-    expect(response.headers.location).to.equal('/full-name')
+    expect(response.headers.location).to.equal('/basic/full-name')
   })
 })

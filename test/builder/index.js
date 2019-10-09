@@ -1,12 +1,10 @@
 const path = require('path')
-const Model = require('./model')
+const Model = require('./../../server/plugins/builder/model')
 const fs = require('fs')
-const { ordnanceSurveyKey } = require('../../config')
-const { getState, mergeState } = require('../../db')
-const configPath = path.join(__dirname, '..', '..')
-
+const { getState, mergeState } = require('../db')
+const configPath = path.join(__dirname, '..', 'cases')
 const relativeTo = __dirname
-const defaultPageController = './pages'
+const defaultPageController = './../../server/plugins/builder/pages'
 
 const configFiles = fs.readdirSync(configPath).filter(filename => {
   if (filename.indexOf(`.json`) >= 0) {
@@ -28,12 +26,10 @@ const configurePlugins = (configFile) => {
 
   return [{
     plugin: require('digital-form-builder-engine'),
-    options: { model, ordnanceSurveyKey, basePath }
+    options: { model, basePath }
   }]
 }
 
 module.exports = {
-  routes: [].concat(...configFiles.map(configFile => configurePlugins(configFile))),
-  configFiles,
-  configurePlugins
+  routes: [].concat(...configFiles.map(configFile => configurePlugins(configFile)))
 }

@@ -4,7 +4,7 @@
   "description": "Starter project for digital form builder applications",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 start config/pm2.json",
+    "start": "node index.js",
     "build:css": "bin/build-css",
     "build": "bin/build",
     "lint": "standard",
@@ -20,9 +20,11 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@hapi/boom": "^8.0.1",
+    "accept-language-parser": "^1.5.0",
     "acorn": "^6.3.0",
     "boom": "7.2.2",
     "digital-form-builder-engine": "CautionYourBlast/digital-form-builder-engine#feature/multiconfig",
+    "glupe": "^1.0.3",
     "govuk-frontend": "2.3.0",
     "hapi": "17.7.0",
     "inert": "5.1.2",
