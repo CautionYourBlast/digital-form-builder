@@ -40,6 +40,11 @@ executors:
     docker:
       - image: circleci/python:2.7-jessie
 
+orbs:
+  slack: circleci/slack@0.1.0
+  aws-eks: circleci/aws-eks@0.2.6
+  kubernetes: circleci/kubernetes@0.4.0
+
 jobs:
   trigger-workflows:
     executor: node
@@ -217,6 +222,7 @@ jobs:
           command: |
             eksctl utils set-public-access-cidrs --approve --cluster=prod ${PUBLIC_ACCESS_CIDRS}
 
+      - slack/status
 
 workflows:
   version: 2
