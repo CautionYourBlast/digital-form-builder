@@ -170,8 +170,6 @@ jobs:
         type: string
       package_name:
         type: string
-      should_build:
-        type: boolean
 
     docker:
       - image: circleci/python:2.7-jessie
