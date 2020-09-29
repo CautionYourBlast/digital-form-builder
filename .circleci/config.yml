@@ -164,6 +164,61 @@ jobs:
               circleci-agent step halt
             fi
 
+  deploy:
+    parameters:
+      namespace:
+        type: string
+      package_name:
+        type: string
+      should_build:
+        type: boolean
+
+    docker:
+      - image: circleci/python:2.7-jessie
+
+    steps:
+      - attach_workspace:
+          at: .
+
+      - setup_remote_docker
+
+      - run:
+          name: Checkout CI Support
+          command: curl https://gist.githubusercontent.com/superafroman/ca7422b3c925dfeba5854edcc1713d89/raw/77febaa0954dfa8ebc6598b1366b7f1f8e38d610/docker-publish.sh -O && chmod +x docker-publish.sh
+
+      - run:
+          name: Install awscli
+          command: sudo pip install awscli
+
+      - run:
+          name: Publish docker image
+          command: ./docker-publish.sh eu-west-2 545108028694.dkr.ecr.eu-west-2.amazonaws.com forms << parameters.package_name >>
+
+      - aws-eks/install-eksctl
+
+      - run:
+          name: Enable access to EKS cluster
+          command: |
+            export PUBLIC_ACCESS_CIDRS=$(eksctl utils set-public-access-cidrs --cluster=prod 127.0.0.1/32 | grep "current" | sed 's/\[ℹ\]  current public access CIDRs: \[//' | sed 's/\]//' | sed 's/ /,/g')
+            echo "export PUBLIC_ACCESS_CIDRS=${PUBLIC_ACCESS_CIDRS}" >> $BASH_ENV
+            public_ip_address=$(wget -qO- http://checkip.amazonaws.com)
+            eksctl utils set-public-access-cidrs --approve --cluster=prod ${public_ip_address}/32,${PUBLIC_ACCESS_CIDRS}
+
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: prod
+          aws-region: eu-west-2
+          install-kubectl: true
+
+      - kubernetes/update-container-image:
+          namespace: << parameters.namespace >>
+          container-image-updates: << parameters.package_name >>=545108028694.dkr.ecr.eu-west-2.amazonaws.com/forms/<< parameters.package_name >>:`cat tag.txt`
+          resource-name: deployment/<< parameters.package_name >>
+
+      - run:
+          name: Disable access to EKS cluster
+          command: |
+            eksctl utils set-public-access-cidrs --approve --cluster=prod ${PUBLIC_ACCESS_CIDRS}
+
 
 workflows:
   version: 2
@@ -185,6 +240,7 @@ workflows:
           should_build: << pipeline.parameters.model >>
           requires:
             - install-yarn
+
       - build-lint-test:
           name: engine-build-lint-test
           package_name: engine
@@ -205,3 +261,27 @@ workflows:
           should_build: << pipeline.parameters.designer >>
           requires:
             - model-build-lint-test
+
+      - deploy:
+          name: designer-deploy
+          context: AWS
+          package_name: designer
+          namespace: dev-forms
+          requires:
+            - designer-build-lint-test
+          filters:
+            branches:
+              only:
+                - master
+
+      - deploy:
+          name: runner-deploy
+          context: AWS
+          package_name: runner
+          namespace: dev-forms
+          requires:
+            - runner-build-lint-test
+          filters:
+            branches:
+              only:
+                - master
