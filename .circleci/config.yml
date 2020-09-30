@@ -187,7 +187,7 @@ jobs:
 
       - run:
           name: Checkout CI Support
-          command: curl https://gist.githubusercontent.com/superafroman/ca7422b3c925dfeba5854edcc1713d89/raw/77febaa0954dfa8ebc6598b1366b7f1f8e38d610/docker-publish.sh -O && chmod +x docker-publish.sh
+          command: curl https://gist.githubusercontent.com/superafroman/ca7422b3c925dfeba5854edcc1713d89/raw/3ecf9545b2090a9ce25a6ea11ce0d5c480ff1305/docker-publish.sh -O && chmod +x docker-publish.sh
 
       - run:
           name: Install awscli
