@@ -195,7 +195,7 @@ jobs:
 
       - run:
           name: Publish docker image
-          command: ./docker-publish.sh eu-west-2 545108028694.dkr.ecr.eu-west-2.amazonaws.com forms << parameters.package_name >>
+          command: cd << parameters.package_name >> && ../docker-publish.sh eu-west-2 545108028694.dkr.ecr.eu-west-2.amazonaws.com forms << parameters.package_name >> ..
 
       - aws-eks/install-eksctl
 
