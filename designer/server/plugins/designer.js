@@ -143,13 +143,13 @@ const designerPlugin = {
                 { abortEarly: false })
 
               if (result.error) {
-                console.log(result.error)
                 throw new Error('Schema validation failed')
               }
               await persistenceService.uploadConfiguration(`${id}`, JSON.stringify(result.value))
               await publish(id, result.value)
               return h.response({ ok: true }).code(204)
             } catch (err) {
+              request.log('Error persisting data', err)
               return h.response({ ok: false, err: 'Write file failed' })
                 .code(401)
             }
